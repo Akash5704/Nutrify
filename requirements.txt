@@ -1,2 +1,5 @@
 flask
 tensorflow
+numpy
+os
+Werkzeug
