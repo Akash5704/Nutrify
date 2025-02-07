@@ -24,6 +24,10 @@ def load_and_prep_image(image_path, img_shape=224, scale=False):
         img = img / 255.
     return img
 
+@app.route('/')
+def home():
+    return "Keras Model API is running!"
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'image' not in request.files:
