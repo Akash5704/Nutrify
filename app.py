@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Load the trained model
-model = tf.keras.models.load_model('Food.keras')
+model = tf.keras.models.load_model('./Food.keras')
 
 
 # Define class names
