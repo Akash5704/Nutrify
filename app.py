@@ -4,9 +4,11 @@ import tensorflow as tf
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from flask_ngrok import run_with_ngrok 
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
+# run_with_ngrok(app) 
 
 # Load the trained model
 model = tf.keras.models.load_model('./Food.keras')
@@ -53,40 +55,39 @@ def load_and_prep_image(image_path, img_shape=224, scale=False):
 def home():
     """Home route to check if API is running"""
     return "Keras Model API is running!"
-
 @app.route('/predict', methods=['POST'])
 def predict():
     """
-    Predict the class of an uploaded image
+    Predict the class of an uploaded image from base64 data
     
     Returns:
         JSON response with prediction and confidence
     """
     try:
-        # Check if image is present in request
-        if 'image' not in request.files:
+        # Get JSON data
+        json_data = request.get_json()
+        
+        if not json_data or 'image_data' not in json_data:
             return jsonify({'error': 'No image uploaded'}), 400
         
-        file = request.files['image']
-        
-        # Check if filename is empty
-        if file.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
-        
-        # Secure filename and save temporarily
-        filename = secure_filename(file.filename)
-        filepath = os.path.join("temp", filename)
+        base64_image = json_data['image_data']
         
         # Ensure temp directory exists
         os.makedirs("temp", exist_ok=True)
         
-        # Save file
-        file.save(filepath)
+        # Generate a random filename
+        filename = f"temp_image_{os.urandom(8).hex()}.jpg"
+        filepath = os.path.join("temp", filename)
         
-        # Validate file
-        if not os.path.exists(filepath) or os.path.getsize(filepath) == 0:
-            return jsonify({'error': 'Failed to save image'}), 400
+        # Decode and save base64 image
+        import base64
+        with open(filepath, "wb") as f:
+            # Remove potential data URL prefix (if present)
+            if ',' in base64_image:
+                base64_image = base64_image.split(',')[1]
+            f.write(base64.b64decode(base64_image))
         
+        # Rest of your code remains the same
         # Preprocess image
         img = load_and_prep_image(filepath)
         
@@ -113,6 +114,6 @@ def predict():
         # Log the full error for debugging
         print(f"Prediction error: {e}")
         return jsonify({'error': str(e)}), 500
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port = 5000)
+    # app.run()
