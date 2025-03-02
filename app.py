@@ -4,7 +4,6 @@ import tensorflow as tf
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from flask_ngrok import run_with_ngrok 
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
