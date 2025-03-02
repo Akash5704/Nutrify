@@ -7,7 +7,6 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-# run_with_ngrok(app) 
 
 # Load the trained model
 model = tf.keras.models.load_model('./Food.keras')
